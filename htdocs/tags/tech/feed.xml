@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tech on Lars Wiegman</title>
+    <link>http://www.namsral.com/tags/tech/</link>
+    <description>Recent content in Tech on Lars Wiegman</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright 2016 Lars Wiegman</copyright>
+    <lastBuildDate>Tue, 18 Mar 2014 15:53:14 +0100</lastBuildDate>
+    <atom:link href="http://www.namsral.com/tags/tech/feed/index.xml" rel="self" type="application/rss+xml" />
+    
+      
+    <item>
+      <title>Random password generator</title>
+      <link>http://www.namsral.com/article/2014/03/18/random-password-generator/</link>
+      <pubDate>Tue, 18 Mar 2014 15:53:14 +0100</pubDate>
+      
+      <guid>http://www.namsral.com/article/2014/03/18/random-password-generator/</guid>
+      <description>&lt;p&gt;I was updating a random password generator for a project, thought I&amp;rsquo;d share the resulting code. Also availabe as a &lt;a href=&#34;https://gist.github.com/namsral/9621883&#34;&gt;gist&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Using a default length of 14 characters this should generate passwords with 84 bits of entropy.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os, string
+
+def random_password(length=14):
+    &amp;quot;&amp;quot;&amp;quot;
+    Random password generator.
+
+    Default generated password will have an entropy of 84 bits.
+
+    For each character in the password, generate a random byte, reduce
+    the integer value to modulo 64 and use the result as an index on
+    the character pool.
+
+    In a 64 character pool, each character will have an entropy of 6
+    bits. With a lenght of 14 characters the total entropy is 84 bits:
+
+        log2(64) * 14 = 84 bits
+
+    The difference between 13 and 14 characters can be several years
+    to brute force. &amp;quot;&amp;quot;&amp;quot;
+
+    characters = string.ascii_letters + string.digits + &#39;+/&#39;
+
+    l = list()
+    for x in xrange(length):
+        i = ord(os.urandom(1)) % len(characters)
+        c = characters[i]
+        l.append(c)
+    return &#39;&#39;.join(l)
+
+if __name__ == &#39;__main__&#39;:
+    print(random_password())
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Generating passwords is easy, storing them safely seems to be more of a challenge.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Do more with the Caps lock key in OS X</title>
+      <link>http://www.namsral.com/article/2014/03/17/do-more-with-the-caps-lock-key-in-os-x/</link>
+      <pubDate>Mon, 17 Mar 2014 10:56:16 +0100</pubDate>
+      
+      <guid>http://www.namsral.com/article/2014/03/17/do-more-with-the-caps-lock-key-in-os-x/</guid>
+      <description>&lt;p&gt;To most of us, the &lt;code&gt;Caps Lock&lt;/code&gt; key is useless and even annoying; waiting to be accidentally turned on and litter your input with caps. Which is a pity because considering its location and size it&amp;rsquo;s a convenient key to tap.&lt;/p&gt;
+
+&lt;p&gt;By disabling the Caps lock functionality in OS X and using a third party app, the Caps lock key can become quite useful.&lt;/p&gt;
+
+&lt;p&gt;For example, control &lt;a href=&#34;http://tmux.sourceforge.net&#34;&gt;tmux&lt;/a&gt;, on OS X version 10.9.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Disable the Caps lock key in OS X&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Launch the System Preferences app&lt;/li&gt;
+&lt;li&gt;Navigate to the Keyboard panel, from the Keyboard tab click the &amp;ldquo;Modifier Keys&amp;hellip;&amp;rdquo; button&lt;/li&gt;
+&lt;li&gt;Choose the &amp;ldquo;No Action&amp;rdquo; option for the Caps Lock Key&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Tapping the Caps lock key will now be ignored by OS X.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Remap the Caps lock key&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Because the Caps lock key isn&amp;rsquo;t a regular key, it can&amp;rsquo;t be configured by applications or OS X, we&amp;rsquo;ll need to remap it to a regular key, preferably one you rarely use, like &lt;code&gt;F19&lt;/code&gt;. &lt;a href=&#34;https://pqrs.org/macosx/keyremap4macbook/pckeyboardhack.html.en&#34;&gt;PCKeyboardHack&lt;/a&gt; allows us to do just that.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Download and install PCKeyboardHack matching your OS X version&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;After installing PCKeyboardHack you&amp;rsquo;ll need to restart OS X or load the kext manually:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo kextload /Applications/PCKeyboardHack.app/Contents/Library/PCKeyboardHack.10.9.signed.kext
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;Note! Load the kext matching your OS X version.&lt;/em&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Launch the PCKeyboardHack app&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Change the keycode of the Caps Lock key to a key you don&amp;rsquo;t regularly use, like &lt;code&gt;F19&lt;/code&gt; which has keycode &lt;code&gt;80&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Tapping the Caps lock key will now invoke the F19 keycode.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Configure tmux to use Caps lock&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;To use the remapped Caps lock key as a prefix for tmux, you&amp;rsquo;ll need to bind the F19.&lt;/p&gt;
+
+&lt;p&gt;Add the following to your &lt;code&gt;~/.tmux.conf&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;unbind C-b
+set-option -g prefix F19
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If tmux was already running, reload its configuration file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ tmux source-file ~/.tmux.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Tapping Caps lock will be less of a strain on your finger than tapping Ctrl-b.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Dennis the DNS menace</title>
+      <link>http://www.namsral.com/article/2014/03/07/dennis-the-dns-menace/</link>
+      <pubDate>Fri, 07 Mar 2014 14:36:49 +0100</pubDate>
+      
+      <guid>http://www.namsral.com/article/2014/03/07/dennis-the-dns-menace/</guid>
+      <description>&lt;p&gt;Just pushed a new project to Github, it&amp;rsquo;s just a small piece of a live project as I&amp;rsquo;m usually not at liberty to open-source production code.&lt;/p&gt;
+
+&lt;p&gt;The project is called Dennis. It&amp;rsquo;s a nameserver which can serve customised DNS responses on a per user basis. It&amp;rsquo;s written in the &lt;a href=&#34;http://golang.org&#34; title=&#34;Go Programming Language&#34;&gt;Go programming language&lt;/a&gt; and uses Redis as a fast datastore.&lt;/p&gt;
+
+&lt;p&gt;On its own Dennis isn&amp;rsquo;t very useful but by adding a DNS recursor and a HTTP(S) proxy, Dennis can bypass geo-blocking for thousands of users. It works by identifying users by their IP address, and each user can setup an unlimited number of custom DNS responses.&lt;/p&gt;
+
+&lt;p&gt;For a more elaborate description see the project on Github, &lt;a href=&#34;https://github.com/namsral/dennis&#34; title=&#34;Dennis the DNS menace&#34;&gt;github.com/namsral/dennis&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Tag cached responses with uWSGI</title>
+      <link>http://www.namsral.com/article/2014/03/04/tag-cached-responses-with-uwsgi/</link>
+      <pubDate>Tue, 04 Mar 2014 12:45:39 +0100</pubDate>
+      
+      <guid>http://www.namsral.com/article/2014/03/04/tag-cached-responses-with-uwsgi/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/unbit/uwsgi&#34;&gt;uWSGI&lt;/a&gt; is a powerful application server but the &lt;a href=&#34;http://uwsgi-docs.readthedocs.org/en/latest/&#34;&gt;documentation&lt;/a&gt; can be light on some subjects like caching.&lt;/p&gt;
+
+&lt;p&gt;If you want distinguish cache hits from misses you can use the &lt;code&gt;incache:key=&lt;/code&gt; condition. Using the following uWSGI configuration will add a &lt;code&gt;X-Cache&lt;/code&gt; header to each response.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[uwsgi]
+
+...
+
+; Enable caching
+mime-file = /etc/mime.types
+cache2 = name=%n-cache,items=100
+
+; Check if URI is cached
+route-if = incache:key=${REQUEST_URI},name=%n-cache goto:cache_hit
+
+; Cache MISS
+route-label = cache_miss
+route-run = addheader:X-Cache: MISS
+route-run = cachestore:key=${REQUEST_URI},name=%n-cache,expires=172800
+route-run = last:
+
+; Cache HIT
+route-label = cache_hit
+route-run = addheader:X-Cache: HIT
+route-run = cache:key=${REQUEST_URI},name=%n-cache,mime=1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Requesting the same URI twice in a row will tag the response accordingly and add an additional Expires header.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl -I -X GET http://namsral.com/
+    HTTP/1.1 200 OK
+    ...
+    X-Cache: MISS
+
+$ curl -I -X GET http://namsral.com/
+    HTTP/1.1 200 OK
+    ...
+    Expires: Thu, 06 Mar 2014 11:11:14 GMT
+    X-Cache: HIT
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Personal URL Shortener In Three Lines Of Code</title>
+      <link>http://www.namsral.com/article/2011/04/23/personal-url-shortener-in-three-lines-of-code/</link>
+      <pubDate>Sat, 23 Apr 2011 02:28:20 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/article/2011/04/23/personal-url-shortener-in-three-lines-of-code/</guid>
+      <description>&lt;p&gt;Having your own URL shortener service has some benefits over using a third party service. To name two: more exposure for your personal domain and full access to web traffic data. But if, for whatever reason, you don&amp;rsquo;t want to host your own here is a quick hack using the Nginx webserver.&lt;/p&gt;
+
+&lt;p&gt;Choose a reliable URL shortener service. I&amp;rsquo;m betting on Google&amp;rsquo;s service at &lt;a href=&#34;http://goo.gl/&#34; title=&#34;Google&#39;s URL Shortener&#34;&gt;http://goo.gl/&lt;/a&gt;. Add the following three lines to the server section of your Nginx configuration:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;location ~ /u/(.*)$ {
+    rewrite ^/u/(.*)/?$ http://goo.gl/$1 redirect;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Generate a shortened URL at &lt;a href=&#34;http://goo.gl/&#34; title=&#34;Google&#39;s URL Shortener&#34;&gt;http://goo.gl/&lt;/a&gt; and replace the goo.gl domain with your own. In my case:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;http://goo.gl/nlthH &amp;gt; http://namsral.com/u/nlthH
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When users click on your shortened URL they will be redirected to Google&amp;rsquo;s shortened URL which in turn will redirect users to their final destination. This all happens in a flash, &lt;a href=&#34;http://namsral.com/u/nlthH&#34;&gt;try it&lt;/a&gt; .&lt;/p&gt;
+
+&lt;p&gt;By adding a unique path to your shortened URLs you&amp;rsquo;ll be able to differentiate them from  other content on your site. Now using grep you can quickly scan through the Nginx logs for clicks:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;grep &#39;/u/&#39; /var/log/nginx/namsral.com.access.log
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Hold Off Spammers with Nginx</title>
+      <link>http://www.namsral.com/article/2011/02/18/hold-off-spammers-with-nginx/</link>
+      <pubDate>Fri, 18 Feb 2011 14:03:20 +0100</pubDate>
+      
+      <guid>http://www.namsral.com/article/2011/02/18/hold-off-spammers-with-nginx/</guid>
+      <description>&lt;p&gt;If you run your own webserver, Nginx in my case, you can easily hide mailto links from spammers with the HTTP rewrite module.&lt;/p&gt;
+
+&lt;p&gt;Add the following three lines of code to your Nginx server config and replace any &amp;ldquo;mailto:user@example.com&amp;rdquo; links with &amp;ldquo;/mail/user/&amp;rdquo;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;location ~ /mail/(.*)$ {
+        rewrite ^/mail/(.*)/$ mailto:$1@$host redirect;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The same can be done for other schemes like for making telephone calls. Again, add the code below and replace any &amp;ldquo;tel:555-1234&amp;rdquo; links with  &amp;ldquo;/call/55512345/&amp;rdquo;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;location ~ /call/(.*)$ {
+        rewrite ^/call/(.*)/$ tel:$1 redirect;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These are examples using Nginx but I bet the same can be accomplished with other webservers.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+  </channel>
+</rss>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html  lang="en">
+<head>
+  <title>Apple, Drinks And Mad Men &middot; Lars Wiegman</title>
+
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="description" content="Personal profile site of Lars Wiegman">
+  <meta name="author" content="Lars Wiegman">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <link rel="stylesheet" href="/css/main.css">
+
+  
+  <link rel="shortcut icon" href="/favicon.ico">  
+
+  
+  
+  <link href="/feed.xml" rel="alternate" type="application/rss+xml" title="Lars Wiegman" />
+  <link href="/feed.xml" rel="feed" type="application/rss+xml" title="Lars Wiegman" />
+  
+</head>
+<body>
+  <div id="pjax-container" data-title="Apple, Drinks And Mad Men &middot; Lars Wiegman">
+    <header role="main">
+      <div class="container">
+        <div class="banner"><a href="/"><img src="/img/logo.svg" alt="Lars Wiegman"></a></div>
+        <hr class="fancy-line">
+        <nav>
+          <ul class="menu inline-list">
+            
+            
+            <li><a class="sidebar-nav-item" href="/">Home</a></li>
+            <li><a class="sidebar-nav-item" href="/skills/">Skills</a></li>
+            <li><a class="sidebar-nav-item" href="/blog/">Blog</a></li>
+            <li><a class="sidebar-nav-item" href="/contact/">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+<main>
+    <section class="super">
+        <div class="container half">
+            <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2012/04/04/apple-drinks-and-mad-men/"><h2>Apple, Drinks And Mad Men</h2></a>
+    </header>
+    <time class="entry-date" datetime="Wed, 4 Apr 2012 20:29:20 &#43;0200" title="04-04-2012">posted on April 4, 2012</time>
+    <a class="entry-permalink" href="/article/2012/04/04/apple-drinks-and-mad-men/" title="Permalink to Apple, Drinks And Mad Men">&#35;</i></a>
+    <section class="entry-body"><p>Three great things captured in a single picture, I added the drinks myself: <a href="/assets/mad-men-apple-advert.jpg">Having drinks and ideas worth sharing</a>.</p>
+
+<p>Credit goes to James Minchin III for his awesome <a href="http://everyday-i-show.livejournal.com/151834.html">behind the scenes at Mad Men</a> photo collection.</p>
+</section>
+</article>
+
+        </div>
+    </section>
+    
+    <section class="super divorce">
+        <div class="container half">
+            <h2>Read Next:</h2>
+            <a href="/article/2014/03/04/tag-cached-responses-with-uwsgi/" class="read-next">
+                <header class="post-header">Tag cached responses with uWSGI</header></a>
+                <p>uWSGI is a powerful application server but the documentation can be light on some subjects like caching. If you want distinguish cache hits from misses you can use the incache:key= condition. Using the following uWSGI configuration will add a X-Cache header to each response. [uwsgi] ... ; Enable caching mime-file = /etc/mime.types cache2 = name=%n-cache,items=100 ; Check if URI is cached route-if = incache:key=${REQUEST_URI},name=%n-cache goto:cache_hit ; Cache MISS route-label = cache_miss route-run = addheader:X-Cache: MISS route-run = cachestore:key=${REQUEST_URI},name=%n-cache,expires=172800 route-run = last: ; Cache HIT route-label = cache_hit route-run = addheader:X-Cache: HIT route-run = cache:key=${REQUEST_URI},name=%n-cache,mime=1 Requesting the same URI twice in a row will tag the response accordingly and add an additional Expires header. <a href="/article/2014/03/04/tag-cached-responses-with-uwsgi/" class="read-next">Continue &raquo;</a></p>
+        </div>
+    </section>
+    
+</main>
+  <footer>
+    <div class="container main ac">
+      <ul class="nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/skills">Skills</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li>•</li>
+        <li><a href="/archive">Archive</a></li>
+        <li><a href="/feed.xml" type="application/rss+xml" target="_blank">Feed</a></li>
+        <li><a href="https://github.com/namsral">GitHub</a></li>
+      </ul>
+    </div>
+    <div class="container ac">
+      <p class="copyright">Copyright &copy; 2007-2016 Lars Wiegman, <a href="/mailto/lars">lars@<span class="begone"> at </span>namsral.com</a></p>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

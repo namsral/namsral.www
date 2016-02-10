@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html  lang="en">
+<head>
+  <title>Do more with the Caps lock key in OS X &middot; Lars Wiegman</title>
+
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="description" content="Personal profile site of Lars Wiegman">
+  <meta name="author" content="Lars Wiegman">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <link rel="stylesheet" href="/css/main.css">
+
+  
+  <link rel="shortcut icon" href="/favicon.ico">  
+
+  
+  
+  <link href="/feed.xml" rel="alternate" type="application/rss+xml" title="Lars Wiegman" />
+  <link href="/feed.xml" rel="feed" type="application/rss+xml" title="Lars Wiegman" />
+  
+</head>
+<body>
+  <div id="pjax-container" data-title="Do more with the Caps lock key in OS X &middot; Lars Wiegman">
+    <header role="main">
+      <div class="container">
+        <div class="banner"><a href="/"><img src="/img/logo.svg" alt="Lars Wiegman"></a></div>
+        <hr class="fancy-line">
+        <nav>
+          <ul class="menu inline-list">
+            
+            
+            <li><a class="sidebar-nav-item" href="/">Home</a></li>
+            <li><a class="sidebar-nav-item" href="/skills/">Skills</a></li>
+            <li><a class="sidebar-nav-item" href="/blog/">Blog</a></li>
+            <li><a class="sidebar-nav-item" href="/contact/">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+<main>
+    <section class="super">
+        <div class="container half">
+            <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2014/03/17/do-more-with-the-caps-lock-key-in-os-x/"><h2>Do more with the Caps lock key in OS X</h2></a>
+    </header>
+    <time class="entry-date" datetime="Mon, 17 Mar 2014 10:56:16 &#43;0100" title="03-17-2014">posted on March 17, 2014</time>
+    <a class="entry-permalink" href="/article/2014/03/17/do-more-with-the-caps-lock-key-in-os-x/" title="Permalink to Do more with the Caps lock key in OS X">&#35;</i></a>
+    <section class="entry-body"><p>To most of us, the <code>Caps Lock</code> key is useless and even annoying; waiting to be accidentally turned on and litter your input with caps. Which is a pity because considering its location and size it&rsquo;s a convenient key to tap.</p>
+
+<p>By disabling the Caps lock functionality in OS X and using a third party app, the Caps lock key can become quite useful.</p>
+
+<p>For example, control <a href="http://tmux.sourceforge.net">tmux</a>, on OS X version 10.9.</p>
+
+<p><strong>Disable the Caps lock key in OS X</strong></p>
+
+<ol>
+<li>Launch the System Preferences app</li>
+<li>Navigate to the Keyboard panel, from the Keyboard tab click the &ldquo;Modifier Keys&hellip;&rdquo; button</li>
+<li>Choose the &ldquo;No Action&rdquo; option for the Caps Lock Key</li>
+</ol>
+
+<p>Tapping the Caps lock key will now be ignored by OS X.</p>
+
+<p><strong>Remap the Caps lock key</strong></p>
+
+<p>Because the Caps lock key isn&rsquo;t a regular key, it can&rsquo;t be configured by applications or OS X, we&rsquo;ll need to remap it to a regular key, preferably one you rarely use, like <code>F19</code>. <a href="https://pqrs.org/macosx/keyremap4macbook/pckeyboardhack.html.en">PCKeyboardHack</a> allows us to do just that.</p>
+
+<ol>
+<li>Download and install PCKeyboardHack matching your OS X version</li>
+
+<li><p>After installing PCKeyboardHack you&rsquo;ll need to restart OS X or load the kext manually:</p>
+
+<pre><code>$ sudo kextload /Applications/PCKeyboardHack.app/Contents/Library/PCKeyboardHack.10.9.signed.kext
+</code></pre>
+
+<p><em>Note! Load the kext matching your OS X version.</em></p></li>
+
+<li><p>Launch the PCKeyboardHack app</p></li>
+
+<li><p>Change the keycode of the Caps Lock key to a key you don&rsquo;t regularly use, like <code>F19</code> which has keycode <code>80</code>.</p></li>
+</ol>
+
+<p>Tapping the Caps lock key will now invoke the F19 keycode.</p>
+
+<p><strong>Configure tmux to use Caps lock</strong></p>
+
+<p>To use the remapped Caps lock key as a prefix for tmux, you&rsquo;ll need to bind the F19.</p>
+
+<p>Add the following to your <code>~/.tmux.conf</code>:</p>
+
+<pre><code>unbind C-b
+set-option -g prefix F19
+</code></pre>
+
+<p>If tmux was already running, reload its configuration file:</p>
+
+<pre><code>$ tmux source-file ~/.tmux.conf
+</code></pre>
+
+<p>Tapping Caps lock will be less of a strain on your finger than tapping Ctrl-b.</p>
+</section>
+</article>
+
+        </div>
+    </section>
+    
+    <section class="super divorce">
+        <div class="container half">
+            <h2>Read Next:</h2>
+            <a href="/article/2014/03/18/random-password-generator/" class="read-next">
+                <header class="post-header">Random password generator</header></a>
+                <p>I was updating a random password generator for a project, thought I&rsquo;d share the resulting code. Also availabe as a gist. Using a default length of 14 characters this should generate passwords with 84 bits of entropy. #!/usr/bin/env python # -*- coding: utf-8 -*- import os, string def random_password(length=14): &quot;&quot;&quot; Random password generator. Default generated password will have an entropy of 84 bits. For each character in the password, generate a random byte, reduce the integer value to modulo 64 and use the result as an index on the character pool. <a href="/article/2014/03/18/random-password-generator/" class="read-next">Continue &raquo;</a></p>
+        </div>
+    </section>
+    
+</main>
+  <footer>
+    <div class="container main ac">
+      <ul class="nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/skills">Skills</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li>•</li>
+        <li><a href="/archive">Archive</a></li>
+        <li><a href="/feed.xml" type="application/rss+xml" target="_blank">Feed</a></li>
+        <li><a href="https://github.com/namsral">GitHub</a></li>
+      </ul>
+    </div>
+    <div class="container ac">
+      <p class="copyright">Copyright &copy; 2007-2016 Lars Wiegman, <a href="/mailto/lars">lars@<span class="begone"> at </span>namsral.com</a></p>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html  lang="en">
+<head>
+  <title>Blog &middot; Lars Wiegman</title>
+
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="description" content="Personal profile site of Lars Wiegman">
+  <meta name="author" content="Lars Wiegman">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <link rel="stylesheet" href="/css/main.css">
+
+  
+  <link rel="shortcut icon" href="/favicon.ico">  
+
+  
+  
+  <link href="/feed.xml" rel="alternate" type="application/rss+xml" title="Lars Wiegman" />
+  <link href="/feed.xml" rel="feed" type="application/rss+xml" title="Lars Wiegman" />
+  
+</head>
+<body>
+  <div id="pjax-container" data-title="Blog &middot; Lars Wiegman">
+    <header role="main">
+      <div class="container">
+        <div class="banner"><a href="/"><img src="/img/logo.svg" alt="Lars Wiegman"></a></div>
+        <hr class="fancy-line">
+        <nav>
+          <ul class="menu inline-list">
+            
+            
+            <li><a class="sidebar-nav-item" href="/">Home</a></li>
+            <li><a class="sidebar-nav-item" href="/skills/">Skills</a></li>
+            <li><a class="sidebar-nav-item active" href="/blog/">Blog</a></li>
+            <li><a class="sidebar-nav-item" href="/contact/">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+<main>
+    <section class="super">
+        <div class="container half">
+      
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2015/08/04/deploy-and-serve-assets-from-a-zip-archive/"><h2>Deploy and serve assets from a zip archive</h2></a>
+    </header>
+    <time class="entry-date" datetime="Tue, 4 Aug 2015 14:00:20 &#43;0200" title="08-04-2015">posted on August 4, 2015</time>
+    <a class="entry-permalink" href="/article/2015/08/04/deploy-and-serve-assets-from-a-zip-archive/" title="Permalink to Deploy and serve assets from a zip archive">&#35;</i></a>
+    <section class="entry-body"><p>When going through the sourcecode of the <a href="http://godoc.org/" title="GoDoc">godoc.org</a> service I came upon this gem called the <code>zipfs</code> package. From the docs:</p>
+
+<blockquote>
+<p>Package zipfs file provides an implementation of the FileSystem interface based on the contents of a .zip file.</p>
+</blockquote>
+
+<p>Combine this with the FileServer handler from the <code>net/http</code> package and you&rsquo;ll be able to serve your assets from a single zip archive.</p>
+
+<p>I wouldn&rsquo;t recommend this strategy in production but it beats embedding your HTML templates, CSS files and your API docs in your Go code.</p>
+
+<p>The following is an example of a HTTP service which serves the contents of the given archive from the <code>/assets/</code> path:</p>
+
+<pre><code class="language-go">package main
+
+import (
+    &quot;archive/zip&quot;
+    &quot;flag&quot;
+    &quot;log&quot;
+    &quot;net/http&quot;
+
+    &quot;golang.org/x/tools/godoc/vfs/httpfs&quot;
+    &quot;golang.org/x/tools/godoc/vfs/zipfs&quot;
+)
+
+func main() {
+    zipPath := flag.String(&quot;zip&quot;, &quot;assets.zip&quot;, &quot;zip file containing assets&quot;)
+    httpAddr := flag.String(&quot;http&quot;, &quot;localhost:6011&quot;, &quot;http address&quot;)
+    flag.Parse()
+
+    r, err := zip.OpenReader(*zipPath)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fs := zipfs.New(r, *zipPath)
+
+    m := http.NewServeMux()
+    m.Handle(&quot;/assets/&quot;, http.FileServer(httpfs.New(fs)))
+
+    log.Print(&quot;Listening on &quot;, *httpAddr)
+    if err := http.ListenAndServe(*httpAddr, m); err != nil {
+        log.Fatal(&quot;ListenAndServe:&quot;, err)
+    }
+}
+</code></pre>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/linked/2014/05/13/distributed-systems-ruining-your-computer/"><h2>Distributed systems ruining your computer</h2></a>
+    </header>
+    <time class="entry-date" datetime="Tue, 13 May 2014 15:06:22 &#43;0200" title="05-13-2014">posted on May 13, 2014</time>
+    <a class="entry-permalink" href="/linked/2014/05/13/distributed-systems-ruining-your-computer/" title="Permalink to Distributed systems ruining your computer">&#35;</i></a>
+    <section class="entry-body"><p>Funniest definition of a distributed, still hold true today:</p>
+
+<blockquote>
+<p>A distributed system is one in which the failure of a computer you didn&rsquo;t even know existed can render your own computer unusable.</p>
+</blockquote>
+
+<p>By Leslie Lamport, father of the theory behind distributed systems.</p>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2014/03/18/random-password-generator/"><h2>Random password generator</h2></a>
+    </header>
+    <time class="entry-date" datetime="Tue, 18 Mar 2014 15:53:14 &#43;0100" title="03-18-2014">posted on March 18, 2014</time>
+    <a class="entry-permalink" href="/article/2014/03/18/random-password-generator/" title="Permalink to Random password generator">&#35;</i></a>
+    <section class="entry-body"><p>I was updating a random password generator for a project, thought I&rsquo;d share the resulting code. Also availabe as a <a href="https://gist.github.com/namsral/9621883">gist</a>.</p>
+
+<p>Using a default length of 14 characters this should generate passwords with 84 bits of entropy.</p>
+
+<pre><code>#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os, string
+
+def random_password(length=14):
+    &quot;&quot;&quot;
+    Random password generator.
+
+    Default generated password will have an entropy of 84 bits.
+
+    For each character in the password, generate a random byte, reduce
+    the integer value to modulo 64 and use the result as an index on
+    the character pool.
+
+    In a 64 character pool, each character will have an entropy of 6
+    bits. With a lenght of 14 characters the total entropy is 84 bits:
+
+        log2(64) * 14 = 84 bits
+
+    The difference between 13 and 14 characters can be several years
+    to brute force. &quot;&quot;&quot;
+
+    characters = string.ascii_letters + string.digits + '+/'
+
+    l = list()
+    for x in xrange(length):
+        i = ord(os.urandom(1)) % len(characters)
+        c = characters[i]
+        l.append(c)
+    return ''.join(l)
+
+if __name__ == '__main__':
+    print(random_password())
+</code></pre>
+
+<p>Generating passwords is easy, storing them safely seems to be more of a challenge.</p>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2014/03/17/do-more-with-the-caps-lock-key-in-os-x/"><h2>Do more with the Caps lock key in OS X</h2></a>
+    </header>
+    <time class="entry-date" datetime="Mon, 17 Mar 2014 10:56:16 &#43;0100" title="03-17-2014">posted on March 17, 2014</time>
+    <a class="entry-permalink" href="/article/2014/03/17/do-more-with-the-caps-lock-key-in-os-x/" title="Permalink to Do more with the Caps lock key in OS X">&#35;</i></a>
+    <section class="entry-body"><p>To most of us, the <code>Caps Lock</code> key is useless and even annoying; waiting to be accidentally turned on and litter your input with caps. Which is a pity because considering its location and size it&rsquo;s a convenient key to tap.</p>
+
+<p>By disabling the Caps lock functionality in OS X and using a third party app, the Caps lock key can become quite useful.</p>
+
+<p>For example, control <a href="http://tmux.sourceforge.net">tmux</a>, on OS X version 10.9.</p>
+
+<p><strong>Disable the Caps lock key in OS X</strong></p>
+
+<ol>
+<li>Launch the System Preferences app</li>
+<li>Navigate to the Keyboard panel, from the Keyboard tab click the &ldquo;Modifier Keys&hellip;&rdquo; button</li>
+<li>Choose the &ldquo;No Action&rdquo; option for the Caps Lock Key</li>
+</ol>
+
+<p>Tapping the Caps lock key will now be ignored by OS X.</p>
+
+<p><strong>Remap the Caps lock key</strong></p>
+
+<p>Because the Caps lock key isn&rsquo;t a regular key, it can&rsquo;t be configured by applications or OS X, we&rsquo;ll need to remap it to a regular key, preferably one you rarely use, like <code>F19</code>. <a href="https://pqrs.org/macosx/keyremap4macbook/pckeyboardhack.html.en">PCKeyboardHack</a> allows us to do just that.</p>
+
+<ol>
+<li>Download and install PCKeyboardHack matching your OS X version</li>
+
+<li><p>After installing PCKeyboardHack you&rsquo;ll need to restart OS X or load the kext manually:</p>
+
+<pre><code>$ sudo kextload /Applications/PCKeyboardHack.app/Contents/Library/PCKeyboardHack.10.9.signed.kext
+</code></pre>
+
+<p><em>Note! Load the kext matching your OS X version.</em></p></li>
+
+<li><p>Launch the PCKeyboardHack app</p></li>
+
+<li><p>Change the keycode of the Caps Lock key to a key you don&rsquo;t regularly use, like <code>F19</code> which has keycode <code>80</code>.</p></li>
+</ol>
+
+<p>Tapping the Caps lock key will now invoke the F19 keycode.</p>
+
+<p><strong>Configure tmux to use Caps lock</strong></p>
+
+<p>To use the remapped Caps lock key as a prefix for tmux, you&rsquo;ll need to bind the F19.</p>
+
+<p>Add the following to your <code>~/.tmux.conf</code>:</p>
+
+<pre><code>unbind C-b
+set-option -g prefix F19
+</code></pre>
+
+<p>If tmux was already running, reload its configuration file:</p>
+
+<pre><code>$ tmux source-file ~/.tmux.conf
+</code></pre>
+
+<p>Tapping Caps lock will be less of a strain on your finger than tapping Ctrl-b.</p>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2014/03/07/dennis-the-dns-menace/"><h2>Dennis the DNS menace</h2></a>
+    </header>
+    <time class="entry-date" datetime="Fri, 7 Mar 2014 14:36:49 &#43;0100" title="03-07-2014">posted on March 7, 2014</time>
+    <a class="entry-permalink" href="/article/2014/03/07/dennis-the-dns-menace/" title="Permalink to Dennis the DNS menace">&#35;</i></a>
+    <section class="entry-body"><p>Just pushed a new project to Github, it&rsquo;s just a small piece of a live project as I&rsquo;m usually not at liberty to open-source production code.</p>
+
+<p>The project is called Dennis. It&rsquo;s a nameserver which can serve customised DNS responses on a per user basis. It&rsquo;s written in the <a href="http://golang.org" title="Go Programming Language">Go programming language</a> and uses Redis as a fast datastore.</p>
+
+<p>On its own Dennis isn&rsquo;t very useful but by adding a DNS recursor and a HTTP(S) proxy, Dennis can bypass geo-blocking for thousands of users. It works by identifying users by their IP address, and each user can setup an unlimited number of custom DNS responses.</p>
+
+<p>For a more elaborate description see the project on Github, <a href="https://github.com/namsral/dennis" title="Dennis the DNS menace">github.com/namsral/dennis</a>.</p>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2014/03/04/tag-cached-responses-with-uwsgi/"><h2>Tag cached responses with uWSGI</h2></a>
+    </header>
+    <time class="entry-date" datetime="Tue, 4 Mar 2014 12:45:39 &#43;0100" title="03-04-2014">posted on March 4, 2014</time>
+    <a class="entry-permalink" href="/article/2014/03/04/tag-cached-responses-with-uwsgi/" title="Permalink to Tag cached responses with uWSGI">&#35;</i></a>
+    <section class="entry-body"><p><a href="https://github.com/unbit/uwsgi">uWSGI</a> is a powerful application server but the <a href="http://uwsgi-docs.readthedocs.org/en/latest/">documentation</a> can be light on some subjects like caching.</p>
+
+<p>If you want distinguish cache hits from misses you can use the <code>incache:key=</code> condition. Using the following uWSGI configuration will add a <code>X-Cache</code> header to each response.</p>
+
+<pre><code>[uwsgi]
+
+...
+
+; Enable caching
+mime-file = /etc/mime.types
+cache2 = name=%n-cache,items=100
+
+; Check if URI is cached
+route-if = incache:key=${REQUEST_URI},name=%n-cache goto:cache_hit
+
+; Cache MISS
+route-label = cache_miss
+route-run = addheader:X-Cache: MISS
+route-run = cachestore:key=${REQUEST_URI},name=%n-cache,expires=172800
+route-run = last:
+
+; Cache HIT
+route-label = cache_hit
+route-run = addheader:X-Cache: HIT
+route-run = cache:key=${REQUEST_URI},name=%n-cache,mime=1
+</code></pre>
+
+<p>Requesting the same URI twice in a row will tag the response accordingly and add an additional Expires header.</p>
+
+<pre><code>$ curl -I -X GET http://namsral.com/
+    HTTP/1.1 200 OK
+    ...
+    X-Cache: MISS
+
+$ curl -I -X GET http://namsral.com/
+    HTTP/1.1 200 OK
+    ...
+    Expires: Thu, 06 Mar 2014 11:11:14 GMT
+    X-Cache: HIT
+</code></pre>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/linked/2012/06/28/googles-made-in-the-usa-is-an-expensive-feature/"><h2>Google&#39;s &#34;Made In The USA&#34; Is An Expensive Feature</h2></a>
+    </header>
+    <time class="entry-date" datetime="Thu, 28 Jun 2012 11:15:20 &#43;0200" title="06-28-2012">posted on June 28, 2012</time>
+    <a class="entry-permalink" href="/linked/2012/06/28/googles-made-in-the-usa-is-an-expensive-feature/" title="Permalink to Google&#39;s &#34;Made In The USA&#34; Is An Expensive Feature">&#35;</i></a>
+    <section class="entry-body"><p>&ldquo;Made in the USA&rdquo; must be an expensive feature.</p>
+
+<p>To be exact $200 because that&rsquo;s the price difference between the new Google Nexus Q media player and the latest Apple TV which is $99.</p>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/linked/2012/05/10/zoo-chimp-makes-elaborate-plots-to-attack-humans/"><h2>Zoo Chimp Makes Elaborate Plots To Attack Humans</h2></a>
+    </header>
+    <time class="entry-date" datetime="Thu, 10 May 2012 10:44:20 &#43;0200" title="05-10-2012">posted on May 10, 2012</time>
+    <a class="entry-permalink" href="/linked/2012/05/10/zoo-chimp-makes-elaborate-plots-to-attack-humans/" title="Permalink to Zoo Chimp Makes Elaborate Plots To Attack Humans">&#35;</i></a>
+    <section class="entry-body"><blockquote>
+<p>Santino just also &ldquo;finds it fun&rdquo; to bug humans. He even appears to target certain people that perhaps really get on his nerves. The attacks are all the more successful because Santino plays it cool, holding back on posturing before whipping out the stone or other projectile.</p>
+</blockquote>
+
+<p>Sounds like a human, a bully human.</p>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/linked/2012/05/09/dvds-and-blu-rays-will-now-carry-two-unskippable-government-warnings/"><h2>DVDs and Blu-rays will now carry two unskippable government warnings</h2></a>
+    </header>
+    <time class="entry-date" datetime="Wed, 9 May 2012 22:41:20 &#43;0200" title="05-09-2012">posted on May 9, 2012</time>
+    <a class="entry-permalink" href="/linked/2012/05/09/dvds-and-blu-rays-will-now-carry-two-unskippable-government-warnings/" title="Permalink to DVDs and Blu-rays will now carry two unskippable government warnings">&#35;</i></a>
+    <section class="entry-body"><p>So as a buyer I get to be treated like a pirate with all these warnings. But if I download the same content from the infamous channels the warnings are removed.</p>
+
+<p>Doesn&rsquo;t it seem weird to these companies to treat your customers like pirates?</p>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/linked/2012/05/09/netherlands-first-country-in-europe-with-net-neutrality/"><h2>Netherlands First Country In Europe With Net Neutrality</h2></a>
+    </header>
+    <time class="entry-date" datetime="Wed, 9 May 2012 13:44:20 &#43;0200" title="05-09-2012">posted on May 9, 2012</time>
+    <a class="entry-permalink" href="/linked/2012/05/09/netherlands-first-country-in-europe-with-net-neutrality/" title="Permalink to Netherlands First Country In Europe With Net Neutrality">&#35;</i></a>
+    <section class="entry-body"><blockquote>
+<p>The Netherlands adopted crucial legislation to safeguard an open and secure internet in The Netherlands. It is the first country in Europe to implement net neutrality in the law</p>
+</blockquote>
+
+<p>The Netherlands may be the first country in Europe to adopt net neutrality but it is just the second in the World!</p>
+
+<p>While I&rsquo;m proud of what my country has accomplished, as a world citizen I&rsquo;m somewhat disappointed. This law has only been adopted by two countries so far, Chili being the first.</p>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2012/04/04/apple-drinks-and-mad-men/"><h2>Apple, Drinks And Mad Men</h2></a>
+    </header>
+    <time class="entry-date" datetime="Wed, 4 Apr 2012 20:29:20 &#43;0200" title="04-04-2012">posted on April 4, 2012</time>
+    <a class="entry-permalink" href="/article/2012/04/04/apple-drinks-and-mad-men/" title="Permalink to Apple, Drinks And Mad Men">&#35;</i></a>
+    <section class="entry-body"><p>Three great things captured in a single picture, I added the drinks myself: <a href="/assets/mad-men-apple-advert.jpg">Having drinks and ideas worth sharing</a>.</p>
+
+<p>Credit goes to James Minchin III for his awesome <a href="http://everyday-i-show.livejournal.com/151834.html">behind the scenes at Mad Men</a> photo collection.</p>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2012/04/03/enable-copy-paste-in-itunes-connect/"><h2>Enable Copy-Paste in iTunes Connect</h2></a>
+    </header>
+    <time class="entry-date" datetime="Tue, 3 Apr 2012 21:55:20 &#43;0200" title="04-03-2012">posted on April 3, 2012</time>
+    <a class="entry-permalink" href="/article/2012/04/03/enable-copy-paste-in-itunes-connect/" title="Permalink to Enable Copy-Paste in iTunes Connect">&#35;</i></a>
+    <section class="entry-body"><p>Got fed up with typing my password in iTunes Connect every time because the form won&rsquo;t let me copy/paste it. Not sure why Apple is making this more difficult than it has to be.</p>
+
+<p>To circumvent the annoyance you can either disable Javascript or override the <code>onpaste</code> function in the password input field and have it return true instead of false:</p>
+
+<pre><code>document.getElementsByName('theAccountPW')[0].onpaste = function() {
+    return true
+};
+</code></pre>
+
+<p>Now you can turn that script in a bookmarklet by prepending it with &ldquo;javascript:&ldquo;.</p>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2012/04/02/a-scene-with-ashton-kutcher-as-steve-jobs/"><h2>A Scene With Ashton Kutcher As Steve Jobs  </h2></a>
+    </header>
+    <time class="entry-date" datetime="Mon, 2 Apr 2012 23:53:20 &#43;0200" title="04-02-2012">posted on April 2, 2012</time>
+    <a class="entry-permalink" href="/article/2012/04/02/a-scene-with-ashton-kutcher-as-steve-jobs/" title="Permalink to A Scene With Ashton Kutcher As Steve Jobs  ">&#35;</i></a>
+    <section class="entry-body"><p>Ashton Kutcher as Steve Jobs in a board meeting, August 1997:</p>
+
+<blockquote>
+<p>Ed Woolard, Gareth Chang, you can stay, everyone else is getting punk&rsquo;d!</p>
+</blockquote>
+</section>
+</article>
+
+        
+      
+        
+          <article class="entry">
+    <header class="entry-header">
+        <a href="/linked/2012/04/02/apples-stock-to-get-a-1001-target-price/"><h2>Apple&#39;s Stock To Get A $1001 Target Price</h2></a>
+    </header>
+    <time class="entry-date" datetime="Mon, 2 Apr 2012 23:04:20 &#43;0200" title="04-02-2012">posted on April 2, 2012</time>
+    <a class="entry-permalink" href="/linked/2012/04/02/apples-stock-to-get-a-1001-target-price/" title="Permalink to Apple&#39;s Stock To Get A $1001 Target Price">&#35;</i></a>
+    <section class="entry-body"><p>I guess Steve&rsquo;s Reality Distorting Field&trade; is still at work.</p>
+</section>
+</article>
+
+        
+      
+        </div>
+    </section>
+</main>
+  <footer>
+    <div class="container main ac">
+      <ul class="nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/skills">Skills</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li>•</li>
+        <li><a href="/archive">Archive</a></li>
+        <li><a href="/feed.xml" type="application/rss+xml" target="_blank">Feed</a></li>
+        <li><a href="https://github.com/namsral">GitHub</a></li>
+      </ul>
+    </div>
+    <div class="container ac">
+      <p class="copyright">Copyright &copy; 2007-2016 Lars Wiegman, <a href="/mailto/lars">lars@<span class="begone"> at </span>namsral.com</a></p>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

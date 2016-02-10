@@ -1,0 +1,3 @@
+Sitemap: http://namsral.com/sitemap.xml
+User-agent: *
+Disallow: /assets

@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Lars Wiegman</title>
+    <link>http://www.namsral.com/</link>
+    <description>Recent content on Lars Wiegman</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright 2016 Lars Wiegman</copyright>
+    <atom:link href="http://www.namsral.com/feed/index.xml" rel="self" type="application/rss+xml" />
+    
+      
+    
+      
+    <item>
+      <title>Deploy and serve assets from a zip archive</title>
+      <link>http://www.namsral.com/article/2015/08/04/deploy-and-serve-assets-from-a-zip-archive/</link>
+      <pubDate>Tue, 04 Aug 2015 14:00:20 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/article/2015/08/04/deploy-and-serve-assets-from-a-zip-archive/</guid>
+      <description>&lt;p&gt;When going through the sourcecode of the &lt;a href=&#34;http://godoc.org/&#34; title=&#34;GoDoc&#34;&gt;godoc.org&lt;/a&gt; service I came upon this gem called the &lt;code&gt;zipfs&lt;/code&gt; package. From the docs:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Package zipfs file provides an implementation of the FileSystem interface based on the contents of a .zip file.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Combine this with the FileServer handler from the &lt;code&gt;net/http&lt;/code&gt; package and you&amp;rsquo;ll be able to serve your assets from a single zip archive.&lt;/p&gt;
+
+&lt;p&gt;I wouldn&amp;rsquo;t recommend this strategy in production but it beats embedding your HTML templates, CSS files and your API docs in your Go code.&lt;/p&gt;
+
+&lt;p&gt;The following is an example of a HTTP service which serves the contents of the given archive from the &lt;code&gt;/assets/&lt;/code&gt; path:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import (
+    &amp;quot;archive/zip&amp;quot;
+    &amp;quot;flag&amp;quot;
+    &amp;quot;log&amp;quot;
+    &amp;quot;net/http&amp;quot;
+
+    &amp;quot;golang.org/x/tools/godoc/vfs/httpfs&amp;quot;
+    &amp;quot;golang.org/x/tools/godoc/vfs/zipfs&amp;quot;
+)
+
+func main() {
+    zipPath := flag.String(&amp;quot;zip&amp;quot;, &amp;quot;assets.zip&amp;quot;, &amp;quot;zip file containing assets&amp;quot;)
+    httpAddr := flag.String(&amp;quot;http&amp;quot;, &amp;quot;localhost:6011&amp;quot;, &amp;quot;http address&amp;quot;)
+    flag.Parse()
+
+    r, err := zip.OpenReader(*zipPath)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fs := zipfs.New(r, *zipPath)
+
+    m := http.NewServeMux()
+    m.Handle(&amp;quot;/assets/&amp;quot;, http.FileServer(httpfs.New(fs)))
+
+    log.Print(&amp;quot;Listening on &amp;quot;, *httpAddr)
+    if err := http.ListenAndServe(*httpAddr, m); err != nil {
+        log.Fatal(&amp;quot;ListenAndServe:&amp;quot;, err)
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Distributed systems ruining your computer</title>
+      <link>http://www.namsral.com/linked/2014/05/13/distributed-systems-ruining-your-computer/</link>
+      <pubDate>Tue, 13 May 2014 15:06:22 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/linked/2014/05/13/distributed-systems-ruining-your-computer/</guid>
+      <description>&lt;p&gt;Funniest definition of a distributed, still hold true today:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;A distributed system is one in which the failure of a computer you didn&amp;rsquo;t even know existed can render your own computer unusable.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;By Leslie Lamport, father of the theory behind distributed systems.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Random password generator</title>
+      <link>http://www.namsral.com/article/2014/03/18/random-password-generator/</link>
+      <pubDate>Tue, 18 Mar 2014 15:53:14 +0100</pubDate>
+      
+      <guid>http://www.namsral.com/article/2014/03/18/random-password-generator/</guid>
+      <description>&lt;p&gt;I was updating a random password generator for a project, thought I&amp;rsquo;d share the resulting code. Also availabe as a &lt;a href=&#34;https://gist.github.com/namsral/9621883&#34;&gt;gist&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Using a default length of 14 characters this should generate passwords with 84 bits of entropy.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os, string
+
+def random_password(length=14):
+    &amp;quot;&amp;quot;&amp;quot;
+    Random password generator.
+
+    Default generated password will have an entropy of 84 bits.
+
+    For each character in the password, generate a random byte, reduce
+    the integer value to modulo 64 and use the result as an index on
+    the character pool.
+
+    In a 64 character pool, each character will have an entropy of 6
+    bits. With a lenght of 14 characters the total entropy is 84 bits:
+
+        log2(64) * 14 = 84 bits
+
+    The difference between 13 and 14 characters can be several years
+    to brute force. &amp;quot;&amp;quot;&amp;quot;
+
+    characters = string.ascii_letters + string.digits + &#39;+/&#39;
+
+    l = list()
+    for x in xrange(length):
+        i = ord(os.urandom(1)) % len(characters)
+        c = characters[i]
+        l.append(c)
+    return &#39;&#39;.join(l)
+
+if __name__ == &#39;__main__&#39;:
+    print(random_password())
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Generating passwords is easy, storing them safely seems to be more of a challenge.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Do more with the Caps lock key in OS X</title>
+      <link>http://www.namsral.com/article/2014/03/17/do-more-with-the-caps-lock-key-in-os-x/</link>
+      <pubDate>Mon, 17 Mar 2014 10:56:16 +0100</pubDate>
+      
+      <guid>http://www.namsral.com/article/2014/03/17/do-more-with-the-caps-lock-key-in-os-x/</guid>
+      <description>&lt;p&gt;To most of us, the &lt;code&gt;Caps Lock&lt;/code&gt; key is useless and even annoying; waiting to be accidentally turned on and litter your input with caps. Which is a pity because considering its location and size it&amp;rsquo;s a convenient key to tap.&lt;/p&gt;
+
+&lt;p&gt;By disabling the Caps lock functionality in OS X and using a third party app, the Caps lock key can become quite useful.&lt;/p&gt;
+
+&lt;p&gt;For example, control &lt;a href=&#34;http://tmux.sourceforge.net&#34;&gt;tmux&lt;/a&gt;, on OS X version 10.9.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Disable the Caps lock key in OS X&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Launch the System Preferences app&lt;/li&gt;
+&lt;li&gt;Navigate to the Keyboard panel, from the Keyboard tab click the &amp;ldquo;Modifier Keys&amp;hellip;&amp;rdquo; button&lt;/li&gt;
+&lt;li&gt;Choose the &amp;ldquo;No Action&amp;rdquo; option for the Caps Lock Key&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Tapping the Caps lock key will now be ignored by OS X.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Remap the Caps lock key&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Because the Caps lock key isn&amp;rsquo;t a regular key, it can&amp;rsquo;t be configured by applications or OS X, we&amp;rsquo;ll need to remap it to a regular key, preferably one you rarely use, like &lt;code&gt;F19&lt;/code&gt;. &lt;a href=&#34;https://pqrs.org/macosx/keyremap4macbook/pckeyboardhack.html.en&#34;&gt;PCKeyboardHack&lt;/a&gt; allows us to do just that.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Download and install PCKeyboardHack matching your OS X version&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;After installing PCKeyboardHack you&amp;rsquo;ll need to restart OS X or load the kext manually:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ sudo kextload /Applications/PCKeyboardHack.app/Contents/Library/PCKeyboardHack.10.9.signed.kext
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;em&gt;Note! Load the kext matching your OS X version.&lt;/em&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Launch the PCKeyboardHack app&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Change the keycode of the Caps Lock key to a key you don&amp;rsquo;t regularly use, like &lt;code&gt;F19&lt;/code&gt; which has keycode &lt;code&gt;80&lt;/code&gt;.&lt;/p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Tapping the Caps lock key will now invoke the F19 keycode.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Configure tmux to use Caps lock&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;To use the remapped Caps lock key as a prefix for tmux, you&amp;rsquo;ll need to bind the F19.&lt;/p&gt;
+
+&lt;p&gt;Add the following to your &lt;code&gt;~/.tmux.conf&lt;/code&gt;:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;unbind C-b
+set-option -g prefix F19
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;If tmux was already running, reload its configuration file:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ tmux source-file ~/.tmux.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Tapping Caps lock will be less of a strain on your finger than tapping Ctrl-b.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Dennis the DNS menace</title>
+      <link>http://www.namsral.com/article/2014/03/07/dennis-the-dns-menace/</link>
+      <pubDate>Fri, 07 Mar 2014 14:36:49 +0100</pubDate>
+      
+      <guid>http://www.namsral.com/article/2014/03/07/dennis-the-dns-menace/</guid>
+      <description>&lt;p&gt;Just pushed a new project to Github, it&amp;rsquo;s just a small piece of a live project as I&amp;rsquo;m usually not at liberty to open-source production code.&lt;/p&gt;
+
+&lt;p&gt;The project is called Dennis. It&amp;rsquo;s a nameserver which can serve customised DNS responses on a per user basis. It&amp;rsquo;s written in the &lt;a href=&#34;http://golang.org&#34; title=&#34;Go Programming Language&#34;&gt;Go programming language&lt;/a&gt; and uses Redis as a fast datastore.&lt;/p&gt;
+
+&lt;p&gt;On its own Dennis isn&amp;rsquo;t very useful but by adding a DNS recursor and a HTTP(S) proxy, Dennis can bypass geo-blocking for thousands of users. It works by identifying users by their IP address, and each user can setup an unlimited number of custom DNS responses.&lt;/p&gt;
+
+&lt;p&gt;For a more elaborate description see the project on Github, &lt;a href=&#34;https://github.com/namsral/dennis&#34; title=&#34;Dennis the DNS menace&#34;&gt;github.com/namsral/dennis&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Tag cached responses with uWSGI</title>
+      <link>http://www.namsral.com/article/2014/03/04/tag-cached-responses-with-uwsgi/</link>
+      <pubDate>Tue, 04 Mar 2014 12:45:39 +0100</pubDate>
+      
+      <guid>http://www.namsral.com/article/2014/03/04/tag-cached-responses-with-uwsgi/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://github.com/unbit/uwsgi&#34;&gt;uWSGI&lt;/a&gt; is a powerful application server but the &lt;a href=&#34;http://uwsgi-docs.readthedocs.org/en/latest/&#34;&gt;documentation&lt;/a&gt; can be light on some subjects like caching.&lt;/p&gt;
+
+&lt;p&gt;If you want distinguish cache hits from misses you can use the &lt;code&gt;incache:key=&lt;/code&gt; condition. Using the following uWSGI configuration will add a &lt;code&gt;X-Cache&lt;/code&gt; header to each response.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[uwsgi]
+
+...
+
+; Enable caching
+mime-file = /etc/mime.types
+cache2 = name=%n-cache,items=100
+
+; Check if URI is cached
+route-if = incache:key=${REQUEST_URI},name=%n-cache goto:cache_hit
+
+; Cache MISS
+route-label = cache_miss
+route-run = addheader:X-Cache: MISS
+route-run = cachestore:key=${REQUEST_URI},name=%n-cache,expires=172800
+route-run = last:
+
+; Cache HIT
+route-label = cache_hit
+route-run = addheader:X-Cache: HIT
+route-run = cache:key=${REQUEST_URI},name=%n-cache,mime=1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Requesting the same URI twice in a row will tag the response accordingly and add an additional Expires header.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl -I -X GET http://namsral.com/
+    HTTP/1.1 200 OK
+    ...
+    X-Cache: MISS
+
+$ curl -I -X GET http://namsral.com/
+    HTTP/1.1 200 OK
+    ...
+    Expires: Thu, 06 Mar 2014 11:11:14 GMT
+    X-Cache: HIT
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Google&#39;s &#34;Made In The USA&#34; Is An Expensive Feature</title>
+      <link>http://www.namsral.com/linked/2012/06/28/googles-made-in-the-usa-is-an-expensive-feature/</link>
+      <pubDate>Thu, 28 Jun 2012 11:15:20 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/linked/2012/06/28/googles-made-in-the-usa-is-an-expensive-feature/</guid>
+      <description>&lt;p&gt;&amp;ldquo;Made in the USA&amp;rdquo; must be an expensive feature.&lt;/p&gt;
+
+&lt;p&gt;To be exact $200 because that&amp;rsquo;s the price difference between the new Google Nexus Q media player and the latest Apple TV which is $99.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Zoo Chimp Makes Elaborate Plots To Attack Humans</title>
+      <link>http://www.namsral.com/linked/2012/05/10/zoo-chimp-makes-elaborate-plots-to-attack-humans/</link>
+      <pubDate>Thu, 10 May 2012 10:44:20 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/linked/2012/05/10/zoo-chimp-makes-elaborate-plots-to-attack-humans/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;Santino just also &amp;ldquo;finds it fun&amp;rdquo; to bug humans. He even appears to target certain people that perhaps really get on his nerves. The attacks are all the more successful because Santino plays it cool, holding back on posturing before whipping out the stone or other projectile.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Sounds like a human, a bully human.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>DVDs and Blu-rays will now carry two unskippable government warnings</title>
+      <link>http://www.namsral.com/linked/2012/05/09/dvds-and-blu-rays-will-now-carry-two-unskippable-government-warnings/</link>
+      <pubDate>Wed, 09 May 2012 22:41:20 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/linked/2012/05/09/dvds-and-blu-rays-will-now-carry-two-unskippable-government-warnings/</guid>
+      <description>&lt;p&gt;So as a buyer I get to be treated like a pirate with all these warnings. But if I download the same content from the infamous channels the warnings are removed.&lt;/p&gt;
+
+&lt;p&gt;Doesn&amp;rsquo;t it seem weird to these companies to treat your customers like pirates?&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Netherlands First Country In Europe With Net Neutrality</title>
+      <link>http://www.namsral.com/linked/2012/05/09/netherlands-first-country-in-europe-with-net-neutrality/</link>
+      <pubDate>Wed, 09 May 2012 13:44:20 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/linked/2012/05/09/netherlands-first-country-in-europe-with-net-neutrality/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;The Netherlands adopted crucial legislation to safeguard an open and secure internet in The Netherlands. It is the first country in Europe to implement net neutrality in the law&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;The Netherlands may be the first country in Europe to adopt net neutrality but it is just the second in the World!&lt;/p&gt;
+
+&lt;p&gt;While I&amp;rsquo;m proud of what my country has accomplished, as a world citizen I&amp;rsquo;m somewhat disappointed. This law has only been adopted by two countries so far, Chili being the first.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Apple, Drinks And Mad Men</title>
+      <link>http://www.namsral.com/article/2012/04/04/apple-drinks-and-mad-men/</link>
+      <pubDate>Wed, 04 Apr 2012 20:29:20 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/article/2012/04/04/apple-drinks-and-mad-men/</guid>
+      <description>&lt;p&gt;Three great things captured in a single picture, I added the drinks myself: &lt;a href=&#34;http://www.namsral.com/assets/mad-men-apple-advert.jpg&#34;&gt;Having drinks and ideas worth sharing&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Credit goes to James Minchin III for his awesome &lt;a href=&#34;http://everyday-i-show.livejournal.com/151834.html&#34;&gt;behind the scenes at Mad Men&lt;/a&gt; photo collection.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Enable Copy-Paste in iTunes Connect</title>
+      <link>http://www.namsral.com/article/2012/04/03/enable-copy-paste-in-itunes-connect/</link>
+      <pubDate>Tue, 03 Apr 2012 21:55:20 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/article/2012/04/03/enable-copy-paste-in-itunes-connect/</guid>
+      <description>&lt;p&gt;Got fed up with typing my password in iTunes Connect every time because the form won&amp;rsquo;t let me copy/paste it. Not sure why Apple is making this more difficult than it has to be.&lt;/p&gt;
+
+&lt;p&gt;To circumvent the annoyance you can either disable Javascript or override the &lt;code&gt;onpaste&lt;/code&gt; function in the password input field and have it return true instead of false:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;document.getElementsByName(&#39;theAccountPW&#39;)[0].onpaste = function() {
+    return true
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now you can turn that script in a bookmarklet by prepending it with &amp;ldquo;javascript:&amp;ldquo;.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>A Scene With Ashton Kutcher As Steve Jobs  </title>
+      <link>http://www.namsral.com/article/2012/04/02/a-scene-with-ashton-kutcher-as-steve-jobs/</link>
+      <pubDate>Mon, 02 Apr 2012 23:53:20 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/article/2012/04/02/a-scene-with-ashton-kutcher-as-steve-jobs/</guid>
+      <description>&lt;p&gt;Ashton Kutcher as Steve Jobs in a board meeting, August 1997:&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Ed Woolard, Gareth Chang, you can stay, everyone else is getting punk&amp;rsquo;d!&lt;/p&gt;
+&lt;/blockquote&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Apple&#39;s Stock To Get A $1001 Target Price</title>
+      <link>http://www.namsral.com/linked/2012/04/02/apples-stock-to-get-a-1001-target-price/</link>
+      <pubDate>Mon, 02 Apr 2012 23:04:20 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/linked/2012/04/02/apples-stock-to-get-a-1001-target-price/</guid>
+      <description>&lt;p&gt;I guess Steve&amp;rsquo;s Reality Distorting Field&amp;trade; is still at work.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+  </channel>
+</rss>

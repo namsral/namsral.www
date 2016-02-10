@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html  lang="en">
+<head>
+  <title>Tag cached responses with uWSGI &middot; Lars Wiegman</title>
+
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="description" content="Personal profile site of Lars Wiegman">
+  <meta name="author" content="Lars Wiegman">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <link rel="stylesheet" href="/css/main.css">
+
+  
+  <link rel="shortcut icon" href="/favicon.ico">  
+
+  
+  
+  <link href="/feed.xml" rel="alternate" type="application/rss+xml" title="Lars Wiegman" />
+  <link href="/feed.xml" rel="feed" type="application/rss+xml" title="Lars Wiegman" />
+  
+</head>
+<body>
+  <div id="pjax-container" data-title="Tag cached responses with uWSGI &middot; Lars Wiegman">
+    <header role="main">
+      <div class="container">
+        <div class="banner"><a href="/"><img src="/img/logo.svg" alt="Lars Wiegman"></a></div>
+        <hr class="fancy-line">
+        <nav>
+          <ul class="menu inline-list">
+            
+            
+            <li><a class="sidebar-nav-item" href="/">Home</a></li>
+            <li><a class="sidebar-nav-item" href="/skills/">Skills</a></li>
+            <li><a class="sidebar-nav-item" href="/blog/">Blog</a></li>
+            <li><a class="sidebar-nav-item" href="/contact/">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+<main>
+    <section class="super">
+        <div class="container half">
+            <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2014/03/04/tag-cached-responses-with-uwsgi/"><h2>Tag cached responses with uWSGI</h2></a>
+    </header>
+    <time class="entry-date" datetime="Tue, 4 Mar 2014 12:45:39 &#43;0100" title="03-04-2014">posted on March 4, 2014</time>
+    <a class="entry-permalink" href="/article/2014/03/04/tag-cached-responses-with-uwsgi/" title="Permalink to Tag cached responses with uWSGI">&#35;</i></a>
+    <section class="entry-body"><p><a href="https://github.com/unbit/uwsgi">uWSGI</a> is a powerful application server but the <a href="http://uwsgi-docs.readthedocs.org/en/latest/">documentation</a> can be light on some subjects like caching.</p>
+
+<p>If you want distinguish cache hits from misses you can use the <code>incache:key=</code> condition. Using the following uWSGI configuration will add a <code>X-Cache</code> header to each response.</p>
+
+<pre><code>[uwsgi]
+
+...
+
+; Enable caching
+mime-file = /etc/mime.types
+cache2 = name=%n-cache,items=100
+
+; Check if URI is cached
+route-if = incache:key=${REQUEST_URI},name=%n-cache goto:cache_hit
+
+; Cache MISS
+route-label = cache_miss
+route-run = addheader:X-Cache: MISS
+route-run = cachestore:key=${REQUEST_URI},name=%n-cache,expires=172800
+route-run = last:
+
+; Cache HIT
+route-label = cache_hit
+route-run = addheader:X-Cache: HIT
+route-run = cache:key=${REQUEST_URI},name=%n-cache,mime=1
+</code></pre>
+
+<p>Requesting the same URI twice in a row will tag the response accordingly and add an additional Expires header.</p>
+
+<pre><code>$ curl -I -X GET http://namsral.com/
+    HTTP/1.1 200 OK
+    ...
+    X-Cache: MISS
+
+$ curl -I -X GET http://namsral.com/
+    HTTP/1.1 200 OK
+    ...
+    Expires: Thu, 06 Mar 2014 11:11:14 GMT
+    X-Cache: HIT
+</code></pre>
+</section>
+</article>
+
+        </div>
+    </section>
+    
+    <section class="super divorce">
+        <div class="container half">
+            <h2>Read Next:</h2>
+            <a href="/article/2014/03/07/dennis-the-dns-menace/" class="read-next">
+                <header class="post-header">Dennis the DNS menace</header></a>
+                <p>Just pushed a new project to Github, it&rsquo;s just a small piece of a live project as I&rsquo;m usually not at liberty to open-source production code. The project is called Dennis. It&rsquo;s a nameserver which can serve customised DNS responses on a per user basis. It&rsquo;s written in the Go programming language and uses Redis as a fast datastore. On its own Dennis isn&rsquo;t very useful but by adding a DNS recursor and a HTTP(S) proxy, Dennis can bypass geo-blocking for thousands of users. <a href="/article/2014/03/07/dennis-the-dns-menace/" class="read-next">Continue &raquo;</a></p>
+        </div>
+    </section>
+    
+</main>
+  <footer>
+    <div class="container main ac">
+      <ul class="nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/skills">Skills</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li>•</li>
+        <li><a href="/archive">Archive</a></li>
+        <li><a href="/feed.xml" type="application/rss+xml" target="_blank">Feed</a></li>
+        <li><a href="https://github.com/namsral">GitHub</a></li>
+      </ul>
+    </div>
+    <div class="container ac">
+      <p class="copyright">Copyright &copy; 2007-2016 Lars Wiegman, <a href="/mailto/lars">lars@<span class="begone"> at </span>namsral.com</a></p>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

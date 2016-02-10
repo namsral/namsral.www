@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html  lang="en">
+<head>
+  <title>Random password generator &middot; Lars Wiegman</title>
+
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="description" content="Personal profile site of Lars Wiegman">
+  <meta name="author" content="Lars Wiegman">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <link rel="stylesheet" href="/css/main.css">
+
+  
+  <link rel="shortcut icon" href="/favicon.ico">  
+
+  
+  
+  <link href="/feed.xml" rel="alternate" type="application/rss+xml" title="Lars Wiegman" />
+  <link href="/feed.xml" rel="feed" type="application/rss+xml" title="Lars Wiegman" />
+  
+</head>
+<body>
+  <div id="pjax-container" data-title="Random password generator &middot; Lars Wiegman">
+    <header role="main">
+      <div class="container">
+        <div class="banner"><a href="/"><img src="/img/logo.svg" alt="Lars Wiegman"></a></div>
+        <hr class="fancy-line">
+        <nav>
+          <ul class="menu inline-list">
+            
+            
+            <li><a class="sidebar-nav-item" href="/">Home</a></li>
+            <li><a class="sidebar-nav-item" href="/skills/">Skills</a></li>
+            <li><a class="sidebar-nav-item" href="/blog/">Blog</a></li>
+            <li><a class="sidebar-nav-item" href="/contact/">Contact</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+<main>
+    <section class="super">
+        <div class="container half">
+            <article class="entry">
+    <header class="entry-header">
+        <a href="/article/2014/03/18/random-password-generator/"><h2>Random password generator</h2></a>
+    </header>
+    <time class="entry-date" datetime="Tue, 18 Mar 2014 15:53:14 &#43;0100" title="03-18-2014">posted on March 18, 2014</time>
+    <a class="entry-permalink" href="/article/2014/03/18/random-password-generator/" title="Permalink to Random password generator">&#35;</i></a>
+    <section class="entry-body"><p>I was updating a random password generator for a project, thought I&rsquo;d share the resulting code. Also availabe as a <a href="https://gist.github.com/namsral/9621883">gist</a>.</p>
+
+<p>Using a default length of 14 characters this should generate passwords with 84 bits of entropy.</p>
+
+<pre><code>#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os, string
+
+def random_password(length=14):
+    &quot;&quot;&quot;
+    Random password generator.
+
+    Default generated password will have an entropy of 84 bits.
+
+    For each character in the password, generate a random byte, reduce
+    the integer value to modulo 64 and use the result as an index on
+    the character pool.
+
+    In a 64 character pool, each character will have an entropy of 6
+    bits. With a lenght of 14 characters the total entropy is 84 bits:
+
+        log2(64) * 14 = 84 bits
+
+    The difference between 13 and 14 characters can be several years
+    to brute force. &quot;&quot;&quot;
+
+    characters = string.ascii_letters + string.digits + '+/'
+
+    l = list()
+    for x in xrange(length):
+        i = ord(os.urandom(1)) % len(characters)
+        c = characters[i]
+        l.append(c)
+    return ''.join(l)
+
+if __name__ == '__main__':
+    print(random_password())
+</code></pre>
+
+<p>Generating passwords is easy, storing them safely seems to be more of a challenge.</p>
+</section>
+</article>
+
+        </div>
+    </section>
+    
+    <section class="super divorce">
+        <div class="container half">
+            <h2>Read Next:</h2>
+            <a href="/article/2015/08/04/deploy-and-serve-assets-from-a-zip-archive/" class="read-next">
+                <header class="post-header">Deploy and serve assets from a zip archive</header></a>
+                <p>When going through the sourcecode of the godoc.org service I came upon this gem called the zipfs package. From the docs: Package zipfs file provides an implementation of the FileSystem interface based on the contents of a .zip file. Combine this with the FileServer handler from the net/http package and you&rsquo;ll be able to serve your assets from a single zip archive. I wouldn&rsquo;t recommend this strategy in production but it beats embedding your HTML templates, CSS files and your API docs in your Go code. <a href="/article/2015/08/04/deploy-and-serve-assets-from-a-zip-archive/" class="read-next">Continue &raquo;</a></p>
+        </div>
+    </section>
+    
+</main>
+  <footer>
+    <div class="container main ac">
+      <ul class="nav">
+        <li><a href="/">Home</a></li>
+        <li><a href="/skills">Skills</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li>•</li>
+        <li><a href="/archive">Archive</a></li>
+        <li><a href="/feed.xml" type="application/rss+xml" target="_blank">Feed</a></li>
+        <li><a href="https://github.com/namsral">GitHub</a></li>
+      </ul>
+    </div>
+    <div class="container ac">
+      <p class="copyright">Copyright &copy; 2007-2016 Lars Wiegman, <a href="/mailto/lars">lars@<span class="begone"> at </span>namsral.com</a></p>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Best on Lars Wiegman</title>
+    <link>http://www.namsral.com/tags/best/</link>
+    <description>Recent content in Best on Lars Wiegman</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>Copyright 2016 Lars Wiegman</copyright>
+    <lastBuildDate>Sat, 23 Apr 2011 02:28:20 +0200</lastBuildDate>
+    <atom:link href="http://www.namsral.com/tags/best/feed/index.xml" rel="self" type="application/rss+xml" />
+    
+      
+    <item>
+      <title>Personal URL Shortener In Three Lines Of Code</title>
+      <link>http://www.namsral.com/article/2011/04/23/personal-url-shortener-in-three-lines-of-code/</link>
+      <pubDate>Sat, 23 Apr 2011 02:28:20 +0200</pubDate>
+      
+      <guid>http://www.namsral.com/article/2011/04/23/personal-url-shortener-in-three-lines-of-code/</guid>
+      <description>&lt;p&gt;Having your own URL shortener service has some benefits over using a third party service. To name two: more exposure for your personal domain and full access to web traffic data. But if, for whatever reason, you don&amp;rsquo;t want to host your own here is a quick hack using the Nginx webserver.&lt;/p&gt;
+
+&lt;p&gt;Choose a reliable URL shortener service. I&amp;rsquo;m betting on Google&amp;rsquo;s service at &lt;a href=&#34;http://goo.gl/&#34; title=&#34;Google&#39;s URL Shortener&#34;&gt;http://goo.gl/&lt;/a&gt;. Add the following three lines to the server section of your Nginx configuration:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;location ~ /u/(.*)$ {
+    rewrite ^/u/(.*)/?$ http://goo.gl/$1 redirect;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Generate a shortened URL at &lt;a href=&#34;http://goo.gl/&#34; title=&#34;Google&#39;s URL Shortener&#34;&gt;http://goo.gl/&lt;/a&gt; and replace the goo.gl domain with your own. In my case:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;http://goo.gl/nlthH &amp;gt; http://namsral.com/u/nlthH
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;When users click on your shortened URL they will be redirected to Google&amp;rsquo;s shortened URL which in turn will redirect users to their final destination. This all happens in a flash, &lt;a href=&#34;http://namsral.com/u/nlthH&#34;&gt;try it&lt;/a&gt; .&lt;/p&gt;
+
+&lt;p&gt;By adding a unique path to your shortened URLs you&amp;rsquo;ll be able to differentiate them from  other content on your site. Now using grep you can quickly scan through the Nginx logs for clicks:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;grep &#39;/u/&#39; /var/log/nginx/namsral.com.access.log
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+      
+    
+      
+    <item>
+      <title>Hold Off Spammers with Nginx</title>
+      <link>http://www.namsral.com/article/2011/02/18/hold-off-spammers-with-nginx/</link>
+      <pubDate>Fri, 18 Feb 2011 14:03:20 +0100</pubDate>
+      
+      <guid>http://www.namsral.com/article/2011/02/18/hold-off-spammers-with-nginx/</guid>
+      <description>&lt;p&gt;If you run your own webserver, Nginx in my case, you can easily hide mailto links from spammers with the HTTP rewrite module.&lt;/p&gt;
+
+&lt;p&gt;Add the following three lines of code to your Nginx server config and replace any &amp;ldquo;mailto:user@example.com&amp;rdquo; links with &amp;ldquo;/mail/user/&amp;rdquo;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;location ~ /mail/(.*)$ {
+        rewrite ^/mail/(.*)/$ mailto:$1@$host redirect;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The same can be done for other schemes like for making telephone calls. Again, add the code below and replace any &amp;ldquo;tel:555-1234&amp;rdquo; links with  &amp;ldquo;/call/55512345/&amp;rdquo;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;location ~ /call/(.*)$ {
+        rewrite ^/call/(.*)/$ tel:$1 redirect;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;These are examples using Nginx but I bet the same can be accomplished with other webservers.&lt;/p&gt;
+</description>
+    </item>
+      
+    
+  </channel>
+</rss>
